@@ -27,7 +27,7 @@ from distutils.core import setup
 
 setup(
     name='clipspeak',
-    packages=['clipspeak'],
+    packages=['clipspeak', 'clipspeak.espeak'],
     scripts=['scripts/clipspeak'],
     version='0.0.1',
     description='Read the contents of the X clipboard',
