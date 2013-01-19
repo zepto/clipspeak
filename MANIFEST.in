@@ -1,0 +1,6 @@
+include *.txt
+include *.mkd
+include MANIFEST.in
+recursive-include docs *.txt
+recursive-include scripts *.py
+recursive-include clipspeak *.py
