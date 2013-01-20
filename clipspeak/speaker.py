@@ -284,50 +284,6 @@ class Reader(object):
 
         self._control_conn.send({'setposition': int(value)})
 
-    @property
-    @playing_wrapper
-    def loops(self) -> int:
-        """ Number of times to loop (playback time + 1).
-
-        """
-
-        self._control_conn.send('getloops')
-        return self._control_conn.recv()
-
-    @loops.setter
-    @playing_wrapper
-    def loops(self, value: int):
-        """ Number of times to loop (playback time + 1).
-
-        """
-
-        self._control_conn.send({'setloops': int(value)})
-
-    @property
-    @playing_wrapper
-    def loop_count(self) -> int:
-        """ Number of times the player has looped.
-
-        """
-
-        self._control_conn.send('getloopcount')
-        return self._control_conn.recv()
-
-    @playing_wrapper
-    def seek(self, offset: int, whence=SEEK_SET) -> int:
-        """ seek(position) -> Seek to position in mod.
-
-        """
-
-        if whence == SEEK_CUR:
-            self.position += offset
-        elif whence == SEEK_END:
-            self.position = self.length - offset
-        else:
-            self.position = offset
-
-        return self.position
-
     @playing_wrapper
     def tell(self) -> int:
         """ tell -> Returns the current position.
