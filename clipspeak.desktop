@@ -1,0 +1,10 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Clipboard Reader
+Comment=Read the clipboard with espeak
+Exec=clipspeak
+Icon=face-monkey
+Terminal=false
+Type=Application
+StartupNotify=true
+Categories=GNOME;Application;AudioVideo;Player;
