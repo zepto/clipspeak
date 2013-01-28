@@ -339,6 +339,31 @@ class EspeakText(object):
             # Return size bytes.
             return self.read(size)
 
+    def write(self, data: str) -> int:
+        """ write(data) -> Make espeak say data if it is printable.
+
+        """
+
+        # Return 0 if no data was given.
+        if not data: return 0
+
+        # Convert data to type str.
+        if type(data) is int:
+            data = str(data)
+        elif type(data) is bytes:
+            data = data.decode()
+        elif type(data) in (list, tuple, range):
+            data = ' '.join([str(i) for i in data])
+        elif type(data) is not str:
+            return 0
+
+        # Silence stderr
+        with silence(sys_stderr):
+            # Speak the text.
+            self._speak(data)
+
+        return len(data)
+
     def read(self, size: int) -> bytes:
         """ Read from the data buffer.
 
