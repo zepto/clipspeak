@@ -26,13 +26,29 @@
 from functools import wraps as functools_wraps
 from sys import stderr as sys_stderr
 
-from .espeak import _espeak
+from musio.io_base import AudioIO, io_wrapper
+from musio.io_util import silence, msg_out
+# from .espeak import _espeak
+from musio.import_util import LazyImport
+
+_espeak = LazyImport('espeak._espeak', globals(), locals(), ['_espeak'], 1)
+
+__supported_dict = {
+    'output': [str],
+    'input': [bytes],
+    'handler': 'EspeakText',
+    'default': True,
+    'dependencies': {'ctypes': ['espeak'], 'python': []}
+}
 
 
-class EspeakText(object):
+class EspeakText(AudioIO):
     """ Espeak wrapper for text to speech synthesis
 
     """
+
+    # Only supports depth 16
+    _valid_depth = (16,)
 
     def __init__(self, text: str, voice: str='en-us', **kwargs):
         """ Espeak tts object.
@@ -43,6 +59,11 @@ class EspeakText(object):
         output = _espeak.AUDIO_OUTPUT_RETRIEVAL
         rate = self._err_check(_espeak.espeak_Initialize(output, 0, None,
                                                          0))
+
+        super(EspeakText, self).__init__(filename='', mode='rw', depth=16,  rate=rate,
+                                         channels=1)
+
+        self._text = text
 
         self._voice = voice
         self.voice = voice
@@ -60,53 +81,6 @@ class EspeakText(object):
         self._closed = False
 
         self._speak(text)
-
-    @property
-    def closed(self):
-        """ Return true if closed.
-
-        """
-
-        return self._closed
-
-    @property
-    def position(self) -> int:
-        """ Get the current position.
-
-        """
-
-        return self._get_position()
-
-    @position.setter
-    def position(self, position: int):
-        """ Set the position.
-
-        """
-
-        self._set_position(int(position))
-
-    def __enter__(self):
-        """ Provides the ability to use pythons with statement.
-
-        """
-
-        try:
-            return self
-        except Exception as err:
-            print(err)
-            return None
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        """ Stop playback when finished.
-
-        """
-
-        try:
-            self.close()
-            return not bool(exc_type)
-        except Exception as err:
-            print(err)
-            return False
 
     def _speak(self, text):
         """ _open() -> Open the classes file and set it up for read/write
@@ -130,7 +104,7 @@ class EspeakText(object):
 
         """
 
-        repr_str = "voice='%(_voice)s'" % self
+        repr_str = "text='%(_text)s, voice='%(_voice)s'" % self
 
         return '%s(%s)' % (self.__class__.__name__, repr_str)
 
@@ -190,14 +164,6 @@ class EspeakText(object):
 
         if position <= self._length:
             self._position = position
-
-    @property
-    def length(self):
-        """ The current length.
-
-        """
-
-        return self._length
 
     @property
     def range(self):
@@ -327,18 +293,7 @@ class EspeakText(object):
 
             self._closed = True
 
-    def readline(self, size: int=-1) -> str:
-        """ readline(size=-1) -> Returns the next line or size bytes.
-
-        """
-
-        if size == -1:
-            # Return a whole buffer.
-            return self.read(self._buffer_size)
-        else:
-            # Return size bytes.
-            return self.read(size)
-
+    @io_wrapper
     def write(self, data: str) -> int:
         """ write(data) -> Make espeak say data if it is printable.
 
@@ -357,6 +312,8 @@ class EspeakText(object):
         elif type(data) is not str:
             return 0
 
+        self._text = data
+
         # Silence stderr
         with silence(sys_stderr):
             # Speak the text.
@@ -364,6 +321,7 @@ class EspeakText(object):
 
         return len(data)
 
+    @io_wrapper
     def read(self, size: int) -> bytes:
         """ Read from the data buffer.
 
