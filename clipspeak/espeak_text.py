@@ -134,6 +134,13 @@ class EspeakText(object):
 
         return '%s(%s)' % (self.__class__.__name__, repr_str)
 
+    def __getitem__(self, item):
+        """ Return the attribute.
+
+        """
+
+        return getattr(self, item)
+
     def __call__(self, wav, numsamples, events):
         """ Make the class callable so it can be called as the espeak synth
         callback.
