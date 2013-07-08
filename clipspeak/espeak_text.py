@@ -104,7 +104,7 @@ class EspeakText(AudioIO):
 
         """
 
-        repr_str = "text='%(_text)s, voice='%(_voice)s'" % self
+        repr_str = "text='%(_text)s', voice='%(_voice)s'" % self
 
         return '%s(%s)' % (self.__class__.__name__, repr_str)
 
