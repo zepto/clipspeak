@@ -42,9 +42,6 @@ class Reader(object):
 
         """
 
-        # To prevent the stop method from being called more than once.
-        self._stopped = False
-
         self._text = ''
 
         # Setup the msg_dict for sending messages to the child process.
@@ -105,8 +102,7 @@ class Reader(object):
 
         """
 
-        if not self._stopped:
-            self.stop()
+        pass
 
     def __len__(self):
         """ The length of the file if it has one.
@@ -236,11 +232,6 @@ class Reader(object):
 
             # Un-Pause.
             self._msg_dict['paused'] = False
-
-            # Prevent stop from being called more than once.
-            self._stopped = True
-
-
 
     def pause(self):
         """ pause() -> Pause playback.
