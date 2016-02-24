@@ -26,6 +26,7 @@
 from multiprocessing import Process, Manager, Pipe
 from io import SEEK_SET, SEEK_CUR, SEEK_END
 from functools import wraps as functools_wraps
+from time import sleep as time_sleep
 
 from musio.alsa_io import Alsa as AudioDevice
 
@@ -145,7 +146,10 @@ class Reader(object):
 
             # Open an audio output device that can handle the data from
             # fileobj.
-            with AudioDevice(rate=22050, channels=1) as device:
+            # with AudioDevice(rate=22050, channels=1) as device:
+
+            device = AudioDevice(rate=22050, channels=1)
+            try:
 
                 # Set the default number of loops to infinite.
                 fileobj.loops = msg_dict.get('loops', -1)
@@ -158,15 +162,27 @@ class Reader(object):
                 while msg_dict['playing'] and (buf or written):
                     # Keep playing if not paused.
                     if not msg_dict.get('paused', False):
+                        # Re-open the device if it was closed.
+                        if device.closed:
+                            device = AudioDevice(rate=22050, channels=1)
+
                         # Read the next buffer full of data.
                         buf = fileobj.readline()
 
                         # Write buf.
                         written = device.write(buf)
                     else:
+                        # Close the device when paused and sleep to
+                        # open the audio for another process and
+                        # save cpu cycles.
+                        if not device.closed:
+                            device.close()
+
+                        time_sleep(0.05)
+
                         # Write a buffer of null bytes so the audio
                         # system can keep its buffer full.
-                        device.write(b'\x00' * device.buffer_size)
+                        # device.write(b'\x00' * device.buffer_size)
 
                     # Get and process any commands from the parent process.
                     if pipe.poll():
@@ -177,6 +193,11 @@ class Reader(object):
                             pipe.send(fileobj.position)
                         elif 'setposition' in command:
                             fileobj.position = command['setposition']
+            except Exception as err:
+                print(err)
+            finally:
+                if not device.closed:
+                    device.close()
 
         # Set playing to False for the parent.
         msg_dict['playing'] = False
