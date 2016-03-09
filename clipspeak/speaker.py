@@ -203,7 +203,7 @@ class Reader(object):
         msg_dict['playing'] = False
 
     def read(self, text: str, **kwargs):
-        """ open(filename) -> Open an audio file to play.
+        """ Read the text.
 
         """
 
