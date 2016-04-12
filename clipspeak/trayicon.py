@@ -74,10 +74,13 @@ class TrayIcon(object):
 
             return
 
-        item = Gtk.ImageMenuItem()
-        item.set_image(image)
-        item.set_label(label)
-        item.set_use_underline(True)
+        label = Gtk.Label(label)
+        grid = Gtk.Grid()
+        grid.set_column_spacing(6)
+        grid.attach(image, 0, 0, 1, 1)
+        grid.attach_next_to(label, image, Gtk.PositionType.RIGHT, 1, 1)
+        item = Gtk.MenuItem()
+        item.add(grid)
         item.connect('button_release_event', callback)
 
         self._menu.add(item)

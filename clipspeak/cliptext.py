@@ -27,6 +27,7 @@ import gi
 gi.require_version('Gtk', '3.0')
 gi.require_version('Gdk', '3.0')
 from gi.repository import Gtk
+from gi.repository import Gio
 from gi.repository.Gdk import SELECTION_CLIPBOARD
 
 from .clipboard import ProcessClipboard
@@ -59,23 +60,27 @@ class ClipSpeak(object):
         # Create the trayicon
         self._trayicon = TrayIcon("face-monkey", self._clicked)
 
+        icon = Gio.ThemedIcon.new_with_default_fallbacks('media-playback-start-symbolic')
         image = Gtk.Image()
-        image.set_from_icon_name('media-playback-start', Gtk.IconSize.MENU)
-        self._trayicon.add_item('_Play', image, self._read)
+        image.set_from_gicon(icon, Gtk.IconSize.MENU)
+        self._trayicon.add_item('Play', image, self._read)
 
+        icon = Gio.ThemedIcon.new_with_default_fallbacks('media-playback-pause-symbolic')
         image = Gtk.Image()
-        image.set_from_icon_name('media-playback-pause', Gtk.IconSize.MENU)
-        self._trayicon.add_item('P_ause', image, self._pause)
+        image.set_from_gicon(icon, Gtk.IconSize.MENU)
+        self._trayicon.add_item('Pause', image, self._pause)
 
+        icon = Gio.ThemedIcon.new_with_default_fallbacks('media-playback-stop-symbolic')
         image = Gtk.Image()
-        image.set_from_icon_name('media-playback-stop', Gtk.IconSize.MENU)
-        self._trayicon.add_item('_Stop', image, self._stop)
+        image.set_from_gicon(icon, Gtk.IconSize.MENU)
+        self._trayicon.add_item('Stop', image, self._stop)
 
         self._trayicon.add_item('', None, None)
 
+        icon = Gio.ThemedIcon.new_with_default_fallbacks('window-close-symbolic')
         image = Gtk.Image()
-        image.set_from_icon_name('application-exit', Gtk.IconSize.MENU)
-        self._trayicon.add_item('E_xit', image, self._exit)
+        image.set_from_gicon(icon, Gtk.IconSize.MENU)
+        self._trayicon.add_item('Exit', image, self._exit)
 
         # Start gtk loop
         self._trayicon.run()
@@ -87,17 +92,17 @@ class ClipSpeak(object):
 
         # Toggle the menu items.
         if self._reader.playing and not self._reader.paused:
-            self._trayicon.toggle_item('_Play', False)
-            self._trayicon.toggle_item('P_ause', True)
-            self._trayicon.toggle_item('_Stop', True)
+            self._trayicon.toggle_item('Play', False)
+            self._trayicon.toggle_item('Pause', True)
+            self._trayicon.toggle_item('Stop', True)
         elif self._reader.paused:
-            self._trayicon.toggle_item('_Play', True)
-            self._trayicon.toggle_item('P_ause', False)
-            self._trayicon.toggle_item('_Stop', True)
+            self._trayicon.toggle_item('Play', True)
+            self._trayicon.toggle_item('Pause', False)
+            self._trayicon.toggle_item('Stop', True)
         else:
-            self._trayicon.toggle_item('_Play', True)
-            self._trayicon.toggle_item('P_ause', False)
-            self._trayicon.toggle_item('_Stop', False)
+            self._trayicon.toggle_item('Play', True)
+            self._trayicon.toggle_item('Pause', False)
+            self._trayicon.toggle_item('Stop', False)
 
     def _get_text(self, clipboard, text, userdata):
         """ Process the text.
